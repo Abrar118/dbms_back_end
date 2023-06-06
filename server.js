@@ -70,10 +70,7 @@ app.get("/admin_insert/:name/:email/:gender/:city/:street/:house/:dob/:salary/:d
     ).then(result => {
         //res.send(result);
         connection.insert(`insert into ADMIN_PHONE (ADMIN_ID, PHONE_NO)
-        values ((select ADMIN_ID from ADMIN
-            where ROWID=(
-                select max(rowid) from ADMIN
-                )),:1)`,{1:phone})
+        values ((select max(ADMIN_ID) from ADMIN),:1)`,{1:phone})
         .then(result => {
             res.send(result);
         }).catch(error=>{
