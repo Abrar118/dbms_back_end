@@ -24,6 +24,7 @@ async function get_data(query)
     try
     {
         let data=await connection.execute(`${query}`);
+        connection.commit();
         return data.rows;
     }
     catch(error)
@@ -32,4 +33,18 @@ async function get_data(query)
     }
 }
 
-export default get_data;
+async function insert(query,params)
+{
+    try
+    {
+        let data=await connection.execute(`${query}`,params);
+        connection.commit();
+        return data.rows;
+    }
+    catch(error)
+    {
+        return error;
+    }
+}
+
+export default {get_data, insert};
