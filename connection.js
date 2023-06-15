@@ -33,6 +33,7 @@ async function get_data(query)
     }
 }
 
+
 async function insert(query,params)
 {
     try
