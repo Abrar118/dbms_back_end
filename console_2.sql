@@ -55,6 +55,42 @@ drop table RESCUES cascade constraints;
 
 
 
+--drop view
+select 'drop view '||VIEW_NAME||';' from USER_VIEWS;
+drop view ADMIN_VIEW;
+drop view CUSTOMER_VIEW;
+drop view VET_VIEW;
+drop view DOCTOR_SHIFT;
+drop view STAFF_VIEW;
+drop view SHIFT_VIEW;
+drop view CABIN_INFO;
+drop view DAYCARE_ANIMAL_HISTORY;
+drop view RESCUED_ANIMAL_HISTORY;
+drop view CUSTOMER_ANIMAL_CABIN;
+drop view CUSTOMER_DONATION;
+drop view NON_CUSTOMER_DONATION;
+drop view FEEDBACK_VIEW;
+drop view HEALTHY_DAYCARE_ANIMAL;
+drop view HEALTHY_RESCUED_ANIMAL;
+drop view UNVACCINATED_DAYCARE_ANIMAL;
+drop view UNVACCINATED_RESCUED_ANIMAL;
+drop view ISOLATED_DAYCARE_ANIMAL;
+drop view ISOLATED_RESCUED_ANIMAL;
+drop view RESCUER_ANIMAL_CABIN;
+drop view STAFF_SPECIALIZATION;
+drop view STAFF_REVIEW;
+drop view ADMIN_REVIEW;
+drop view MANAGER_REVIEW;
+drop view SERVICE_REVIEW;
+drop view VETERINARIAN_REVIEW;
+drop view AVERAGE_RATING;
+drop view RESCUE_INFO;
+drop view TOTAL_DAYCARE_SERVICES;
+drop view CUSTOMER_PRICING;
+drop view VET_ANIMAL;
+
+
+
 
 --all views generation
 select 'select * from '||VIEW_NAME||';' from USER_VIEWS;
