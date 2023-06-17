@@ -57,6 +57,7 @@ drop table RESCUES cascade constraints;
 
 --drop view
 select 'drop view '||VIEW_NAME||';' from USER_VIEWS;
+drop view RESCUER_VIEW;
 drop view ADMIN_VIEW;
 drop view CUSTOMER_VIEW;
 drop view VET_VIEW;

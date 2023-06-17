@@ -1,8 +1,46 @@
 create type addr as object (
   city varchar2(30),
   street varchar2(30),
-  house varchar2(30)
+  house varchar2(30),
+  order member function comp(address addr) return integer
 );
+
+create or replace type body ADDR as
+    order member function comp(address addr) return integer is
+begin
+    if (self.CITY<>address.CITY) or (self.CITY=address.CITY and self.STREET<>address.STREET) or (self.CITY=address.CITY and self.STREET=address.STREET and self.HOUSE<>address.HOUSE) then
+        return 1;
+    else
+        return -1;
+    end if;
+    end comp;
+end;
+
+
+
+create sequence feedback_serial;
+
+create or replace function check_phone(phone varchar2) return boolean is
+    len number;
+    begin
+        len:=length(phone);
+
+        if len=11 then
+            return true;
+        else
+            return false;
+        end if;
+    end;
+
+
+create or replace function check_email(email varchar2) return boolean is
+    begin
+        if regexp_like(email,'^\w+(\.\w+)*+@\w+(\.\w+)+$') then
+            return true;
+        else
+            return false;
+        end if;
+    end;
 
 
 create table ADMIN(
@@ -22,17 +60,32 @@ create table ADMIN_PHONE(
     admin_id number,
     phone_no varchar2(11),
 
-    constraint number_length check ( check_phone(phone_no) ),
+    constraint number_length check ( length(phone_no)=11 ),
     constraint fk_admin_id foreign key (admin_id) references ADMIN(admin_id) on delete cascade
 );
 
+create or replace trigger check_email_trigger_admin
+    before insert on ADMIN
+    for each row
+    declare
+        valid boolean;
+        not_a_valid_email EXCEPTION ;
+        pragma exception_init ( not_a_valid_email, -2001 );
+    begin
+        valid:=check_email(:new.email);
+
+        if valid=false then
+            raise not_a_valid_email;
+        end if;
+    end;
+
 
 create or replace view admin_view as
-    select ADMIN.ADMIN_ID, name, email, gender, address.house || ', ' || address.street || ', ' || address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,
+    select ADMIN.ADMIN_ID, name, email, gender, ADMIN.address.house || ', ' || ADMIN.address.street || ', ' || ADMIN.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,
           designation ,listagg(PHONE_NO, ', ') as Phone
     from ADMIN JOIN ADMIN_PHONE on ADMIN.ADMIN_ID=ADMIN_PHONE.ADMIN_ID
-    group by ADMIN.ADMIN_ID, name, email, gender, address, dob, designation
-    order by ADMIN.ADMIN_ID;
+    group by ADMIN.ADMIN_ID, name, email, gender, ADMIN.address.house || ', ' || ADMIN.address.street || ', ' || ADMIN.address.city, to_char(dob, 'dd-mm-yyyy'), floor(months_between(sysdate, dob)/12), designation
+order by ADMIN.admin_id;
 
 
 
@@ -53,16 +106,32 @@ create table STAFF_PHONE(
     staff_id number,
     phone_no varchar2(11),
 
-    constraint number_length_1 check ( check_phone(phone_no) ),
+    constraint number_length_1 check ( length(phone_no)=11 ),
     constraint fk_staff_id foreign key (staff_id) references staff(staff_id) on delete cascade
 );
 
+create or replace trigger check_email_trigger_sfaff
+    before insert on STAFF
+    for each row
+    declare
+        valid boolean;
+        not_a_valid_email EXCEPTION ;
+        pragma exception_init ( not_a_valid_email, -2001 );
+    begin
+        valid:=check_email(:new.email);
+
+        if valid=false then
+            raise not_a_valid_email;
+        end if;
+    end;
+
+
 create or replace view staff_view as
-    select staff.staff_ID, name, email, gender, address.house || ', ' || address.street || ', ' || address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,salary,
+    select staff.staff_ID, name, email, gender, staff.address.house || ', ' || staff.address.street || ', ' || staff.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,salary,
            listagg(PHONE_NO, ', ') as Phone
     from staff JOIN staff_PHONE on STAFF.STAFF_ID=STAFF_PHONE.STAFF_ID
-    group by STAFF.STAFF_ID, name, email, gender, address, dob,salary
-    order by STAFF.STAFF_ID;
+    group by staff.staff_ID, name, email, gender, staff.address.house || ', ' || staff.address.street || ', ' || staff.address.city, to_char(dob, 'dd-mm-yyyy'), floor(months_between(sysdate, dob)/12), salary
+order by staff.staff_id;
 
 
 
@@ -81,29 +150,34 @@ create table CUSTOMER_PHONE(
     customer_id number,
     phone_no varchar2(11),
 
-    constraint number_length_2 check ( check_phone(phone_no) ),
+    constraint number_length_2 check ( length(phone_no)=11 ),
     constraint fk_cust_id foreign key (customer_id) references CUSTOMER(customer_id) on delete cascade
 );
 
+create or replace trigger check_email_trigger_customer
+    before insert on CUSTOMER
+    for each row
+    declare
+        valid boolean;
+        not_a_valid_email EXCEPTION ;
+        pragma exception_init ( not_a_valid_email, -2001 );
+    begin
+        valid:=check_email(:new.email);
+
+        if valid=false then
+            raise not_a_valid_email;
+        end if;
+    end;
+
 
 create or replace view customer_view as
-select CUSTOMER.CUSTOMER_ID, name, email, gender, address.house || ', ' || address.street || ', ' || address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,
+select CUSTOMER.CUSTOMER_ID, name, email, gender, CUSTOMER.address.house || ', ' || CUSTOMER.address.street || ', ' || CUSTOMER.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", floor(months_between(sysdate, dob)/12) as Age,
        listagg(PHONE_NO, ', ') as Phone
 from CUSTOMER JOIN CUSTOMER_PHONE on CUSTOMER.CUSTOMER_ID=CUSTOMER_PHONE.CUSTOMER_ID
-group by CUSTOMER.CUSTOMER_ID, name, email, gender, address, dob
-order by CUSTOMER.CUSTOMER_ID;
+group by CUSTOMER.CUSTOMER_ID, name, email, gender, CUSTOMER.address.house || ', ' || CUSTOMER.address.street || ', ' || CUSTOMER.address.city, to_char(dob, 'dd-mm-yyyy'), floor(months_between(sysdate, dob)/12)
+order by CUSTOMER.customer_id;
 
 
-
-create sequence feedback_serial;
-
-create or replace trigger feedback_increment
-    before insert on FEEDBACK
-    for each row
-    begin
-        select feedback_serial.nextval into :new.serial_no
-        from DUAL;
-    end;
 
 create table FEEDBACK(
     serial_no number generated by default as identity,
@@ -117,6 +191,14 @@ create table FEEDBACK(
     constraint fk_customer_id foreign key (customer_id) references CUSTOMER(customer_id) on delete set null
 );
 
+create or replace trigger feedback_increment
+    before insert on FEEDBACK
+    for each row
+    begin
+        select feedback_serial.nextval into :new.serial_no
+        from DUAL;
+    end;
+
 create table DONATION(
     donation_no number generated by default as identity,
     name varchar2(20) not null,
@@ -129,23 +211,11 @@ create table DONATION(
 );
 
 
-create or replace function check_phone(phone varchar2) return boolean is
-    len number;
-    begin
-        len:=length(phone);
-
-        if len=11 then
-            return true;
-        else
-            return false;
-        end if;
-    end;
-
 create table DONATION_PHONE(
     donation_no number,
     phone_no varchar2(11),
 
-    constraint number_length_3 check (check_phone(phone_no)),
+    constraint number_length_3 check (length(phone_no)=11),
     constraint fk_don_id foreign key (donation_no) references DONATION(donation_no) on delete cascade
 );
 
@@ -164,11 +234,26 @@ create table VETERINARIAN(
     constraint pk_vet_id primary key (vet_id)
 );
 
+create or replace trigger check_email_trigger_vet
+    before insert on VETERINARIAN
+    for each row
+    declare
+        valid boolean;
+        not_a_valid_email EXCEPTION ;
+        pragma exception_init ( not_a_valid_email, -2001 );
+    begin
+        valid:=check_email(:new.email);
+
+        if valid=false then
+            raise not_a_valid_email;
+        end if;
+    end;
+
 create table VET_PHONE(
     vet_id number,
     phone_no varchar2(11),
 
-    constraint number_length_4 check ( check_phone(phone_no) ),
+    constraint number_length_4 check ( length(phone_no)=11 ),
     constraint fk_veterinarian_id foreign key (vet_id) references VETERINARIAN(vet_id) on delete cascade
 );
 
@@ -208,9 +293,15 @@ create table RESCUER_PHONE(
     rescuer_id number,
     phone_no varchar2(11),
 
-    constraint number_length_5 check ( check_phone(phone_no) ),
+    constraint number_length_5 check ( length(phone_no)=11 ),
     constraint fk_resc_id foreign key (rescuer_id) references RESCUER(rescuer_id) on delete cascade
 );
+
+create or replace view rescuer_view as
+    select rescuer.rescuer_ID, name,  listagg(PHONE_NO, ', ') as Phone
+    from rescuer JOIN rescuer_PHONE on rescuer.rescuer_ID=rescuer_PHONE.rescuer_ID
+    group by rescuer.rescuer_ID, name
+    order by rescuer.rescuer_ID;
 
 
 create table CABIN(
@@ -308,14 +399,14 @@ create table CHECKUP_DAYCARE(
 
 
 create or replace view vet_view as
-select A.vet_id, name, email, gender, Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth", Age, salary, QUALIFICATION, "Total Checkups", listagg(PHONE_NO, ', ') as Phone
+select A.vet_id, name, "Total Checkups", listagg(PHONE_NO, ', ') as Phone
 from (
-    select A.vet_id, A.name, email, gender, Address, dob, floor(months_between(sysdate, dob)/12) as Age, salary, qualification, A.checkup_count+B.checkup_count as "Total Checkups"
+    select A.vet_id, A.name, A.checkup_count+B.checkup_count as "Total Checkups"
     from
-        (select VETERINARIAN.vet_id, name, email, gender, address.house || ', ' || address.street || ', ' || address.city as Address, dob, salary, qualification, count(rescued_animal_id) as checkup_count
+        (select VETERINARIAN.vet_id, name, count(rescued_animal_id) as checkup_count
         from VETERINARIAN, CHECKUP_RESCUE
         where VETERINARIAN.vet_id=CHECKUP_RESCUE.vet_id(+)
-        group by name, VETERINARIAN.vet_id, email, gender, address.house || ', ' || address.street || ', ' || address.city , dob, salary, qualification
+        group by name, VETERINARIAN.vet_id
         ) A
     ,
     (select name, VETERINARIAN.vet_id, count(daycare_animal_id) as checkup_count
@@ -323,19 +414,16 @@ from (
     where VETERINARIAN.vet_id=CHECKUP_DAYCARE.vet_id(+)
     group by name, VETERINARIAN.vet_id) B
     where A.VET_ID=B.VET_ID
-    order by A.VET_ID
  ) A
 join VET_PHONE on A.VET_ID = VET_PHONE.VET_ID
-group by A.vet_id, name, email, gender, Address, dob, Age, salary, QUALIFICATION, "Total Checkups"
-order by A.VET_ID;
-
+group by A.vet_id, name,  "Total Checkups";
 
 create or replace view vet_view as
-    select VETERINARIAN.vet_ID, name, email, gender, address.house || ', ' || address.street || ', ' || address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth",
+    select V.vet_ID, name, email, gender, V.address.house || ', ' || V.address.street || ', ' || V.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth",
            floor(months_between(sysdate, dob)/12) as Age,salary, qualification, listagg(PHONE_NO, ', ') as Phone
-    from VETERINARIAN JOIN vet_PHONE on VETERINARIAN.vet_ID=vet_PHONE.vet_ID
-    group by VETERINARIAN.vet_ID, name, email, gender, address, dob,salary,qualification
-    order by VETERINARIAN.vet_id;
+    from VETERINARIAN V JOIN vet_PHONE on V.vet_ID=vet_PHONE.vet_ID
+    group by V.vet_ID, name, email, gender, V.address.house || ', ' || V.address.street || ', ' || V.address.city, to_char(dob, 'dd-mm-yyyy'), floor(months_between(sysdate, dob)/12), salary, qualification
+order by V.vet_id;
 
 
 
@@ -359,9 +447,9 @@ declare
     temp_animal_id number;
     temp_animal_type varchar2(10);
     healthy varchar2(15);
+    found boolean:=false;
 
-    cabin_space_exception EXCEPTION ;
-    pragma exception_init ( not_enough_space_in_cabin, -9999 );
+    not_enough_space_in_cabin EXCEPTION ;
 begin
     temp_animal_id:=to_number(substr(:new.animal_identifier,3));
 
@@ -390,7 +478,7 @@ begin
                 update CABIN
                     set EXISTING_QUANTITY=existing_quantity+1
                 where CABIN_NO=i.cabin_no;
-
+                found:=true;
                 exit;
             end if;
         end loop;
@@ -414,14 +502,20 @@ begin
                 update CABIN
                     set EXISTING_QUANTITY=existing_quantity+1
                 where CABIN_NO=i.cabin_no;
-
+                found:=true;
                 exit;
             end if;
         end loop;
     end if;
+
+    if not found then
+        raise not_enough_space_in_cabin;
+    end if;
+
+    exception
+        when not_enough_space_in_cabin then
+            raise_application_error(-20001, 'Not enough space in cabin.');
 end;
-
-
 
 
 
@@ -435,11 +529,14 @@ declare
     temp_cabin_type varchar2(15);
     temp_animal_type varchar2(15);
     animal_id number;
+    found boolean:=false;
 
     cursor iso_cabin is
     select * from CABIN where lower(type)='isolated';
 
     iso_table_row iso_cabin%rowtype;
+
+    not_enough_space_in_cabin EXCEPTION ;
 begin
     select animal_identifier into temp_id
     from HEALTH_RECORD
@@ -475,10 +572,12 @@ begin
                     update CABIN
                         set EXISTING_QUANTITY=existing_quantity+1
                     where CABIN_NO=iso_table_row.cabin_no;
-
+                    found:=true;
                     exit;
                 end if;
             end loop;
+        else
+            found:=true;
         end if;
 
     elsif temp_id like 'r%' then
@@ -507,14 +606,23 @@ begin
                     update CABIN
                         set EXISTING_QUANTITY=existing_quantity+1
                     where CABIN_NO=iso_table_row.cabin_no;
-
+                    found:=true;
                     exit;
                 end if;
             end loop;
+        else
+            found:=true;
         end if;
     end if;
 
     close iso_cabin;
+
+    if not found then
+        raise not_enough_space_in_cabin;
+    end if;
+    exception
+        when not_enough_space_in_cabin then
+            raise_application_error(-20001, 'Not enough space in cabin.');
 end;
 
 commit ;

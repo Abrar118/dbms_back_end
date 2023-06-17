@@ -20,7 +20,8 @@ from
          )
     group by CABIN_NO
     order by CABIN_NO
-) B on A."Cabin Number"=B."Cabin Number"(+);
+) B on A."Cabin Number"=B."Cabin Number"(+)
+order by A."Cabin Number";
 
 
 --animal vet history
@@ -37,10 +38,10 @@ order by RESCUED_ANIMAL_ID;
 
 --customer donation
 create or replace view customer_donation as
-select CUSTOMER.CUSTOMER_ID as "Customer ID", initcap(CUSTOMER.NAME) "Customer Name", CUSTOMER.EMAIL, house || ', ' || street || ', ' || city as Address,
+select CUSTOMER.CUSTOMER_ID as "Customer ID", initcap(CUSTOMER.NAME) "Customer Name", CUSTOMER.EMAIL, CUSTOMER.ADDRESS.house || ', ' || CUSTOMER.ADDRESS.street || ', ' || CUSTOMER.ADDRESS.city as Address,
        sum(AMOUNT) as "Donation Amount", listagg(to_char(DONATION_DATE, 'dd-mm-yyyy'), ', ') as "Donation Date"
 from CUSTOMER join DONATION on CUSTOMER.CUSTOMER_ID = DONATION.CUSTOMER_ID
-group by CUSTOMER.CUSTOMER_ID, CUSTOMER.NAME, CUSTOMER.EMAIL, house || ', ' || street || ', ' || city
+group by CUSTOMER.CUSTOMER_ID, CUSTOMER.NAME, CUSTOMER.EMAIL, CUSTOMER.ADDRESS.house || ', ' ||CUSTOMER.ADDRESS.street || ', ' ||CUSTOMER.ADDRESS.city
 order by CUSTOMER.CUSTOMER_ID;
 
 
