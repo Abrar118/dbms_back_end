@@ -559,7 +559,7 @@ app.get("/vet_animal", (req, res) => {
 //feedback
 app.get("/feedback", (req, res) => {
   connection
-    .get_data("SELECT * FROM FEEDBACK")
+    .get_data("SELECT * FROM FEEDBACK_VIEW")
     .then((result) => {
       res.send(result);
     })
@@ -632,6 +632,7 @@ app.get(
     const message = req.params.message;
     const customerId = req.params.customerId;
 
+
     const params = {
       1: subject,
       2: date,
@@ -640,8 +641,7 @@ app.get(
       5: customerId,
     };
 
-    connection
-      .insert(
+    connection.insert(
         `insert into FEEDBACK (FEEDBACK_SUBJECT, F_DATE, RATING, MESSAGE, CUSTOMER_ID)
         values (:1, to_date(:2, 'dd-mm-yyyy'), :3, :4, :5)`,
         params
@@ -908,7 +908,7 @@ app.get("/non_customer_donation", (req, res) => {
 
 app.get("/donation", (req, res) => {
   connection
-    .get_data("select * from DONATION")
+    .get_data("select * from DONATION_VIEW")
     .then((result) => {
       res.send(result);
     })
@@ -923,7 +923,7 @@ app.get(
     const name = req.params.name;
     const amount = req.params.amount;
     const donation_date = req.params.donation_date;
-    const customer_Id = req.params.customer_Id;
+    const customer_Id = req.params.customer_id;
 
     const params = {
       1: name,
@@ -934,8 +934,8 @@ app.get(
 
     connection
       .insert(
-        `insert into DONATION (DONATION_NAME, D_AMOUNT, DONATION_DATE, CUSTOMER_ID)
-        values (:1, to_date(:2, 'dd-mm-yyyy'), :3, :4, :5)`,
+        `insert into DONATION (NAME, AMOUNT, DONATION_DATE, CUSTOMER_ID)
+        values (:1, :2, to_date(:3, 'dd-mm-yyyy'), :4)`,
         params
       )
       .then((result) => {
