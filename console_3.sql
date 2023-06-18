@@ -58,7 +58,7 @@ order by DONATION_NO;
 create or replace view feedback_view as
 select initcap(C.NAME) as "Customer Name", C.EMAIL as "Customer Email", F.FEEDBACK_SUBJECT as "Feedback Subject",
        to_char(F.F_DATE, 'dd-mm-yyyy') as "Feedback Time", F.RATING, F.MESSAGE as "Feedback Body"
-from CUSTOMER C join FEEDBACK F on C.CUSTOMER_ID = F.CUSTOMER_ID
+from CUSTOMER C join FEEDBACK F on C.CUSTOMER_ID(+) = F.CUSTOMER_ID
 order by C.CUSTOMER_ID;
 
 
@@ -212,3 +212,8 @@ SELECT c.customer_id, cph.phone_no, r.rescuer_id
 FROM customer c,customer_phone  cph
 , rescuer_phone  rph,
  rescuer r where cph.phone_no = rph.phone_no and c.name=r.name;
+
+create or replace view donation_view as
+    select DONATION_NO, name, amount, to_char(donation_date, 'dd-mm-yyyy') as "Date", customer_id
+from DONATION
+order by DONATION_NO;
