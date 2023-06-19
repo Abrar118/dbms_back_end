@@ -52,9 +52,14 @@ create table ADMIN(
     dob date,
     salary number(10),
     designation varchar2(20),
+    password varchar2(30),
 
+    constraint pass_check check ( length(password)>=8 ),
     constraint pk_admin_id primary key (admin_id)
 );
+
+create index admin_email
+on ADMIN(email);
 
 create table ADMIN_PHONE(
     admin_id number,
@@ -69,13 +74,28 @@ create or replace trigger check_email_trigger_admin
     for each row
     declare
         valid boolean;
+        already boolean:=false;
+        cnt number;
+
         not_a_valid_email EXCEPTION ;
-        pragma exception_init ( not_a_valid_email, -2001 );
+        pragma exception_init ( not_a_valid_email, -20001 );
+        email_already_exists exception;
+        pragma exception_init ( email_already_exists, -20002 );
     begin
         valid:=check_email(:new.email);
 
+        select count(*) into cnt from ADMIN where email=:new.email;
+
+        if cnt>0 then
+            already:=true;
+        end if;
+
         if valid=false then
-            raise not_a_valid_email;
+            raise_application_error(-20001, 'Not a valid email');
+        end if;
+
+        if already then
+            raise_application_error(-20002, 'Email already exists');
         end if;
     end;
 
@@ -98,9 +118,14 @@ create table STAFF(
     dob date,
     salary number(10),
     specialization varchar2(20),
+    password varchar2(30),
 
+    constraint pass_check1 check ( length(password)>=8 ),
     constraint pk_staff_id primary key (staff_id)
 );
+
+create index STAFF_email
+on STAFF(email);
 
 create table STAFF_PHONE(
     staff_id number,
@@ -115,13 +140,28 @@ create or replace trigger check_email_trigger_sfaff
     for each row
     declare
         valid boolean;
+        already boolean:=false;
+        cnt number;
+
         not_a_valid_email EXCEPTION ;
-        pragma exception_init ( not_a_valid_email, -2001 );
+        pragma exception_init ( not_a_valid_email, -20001 );
+        email_already_exists exception;
+        pragma exception_init ( email_already_exists, -20002 );
     begin
         valid:=check_email(:new.email);
 
+        select count(*) into cnt from STAFF where email=:new.email;
+
+        if cnt>0 then
+            already:=true;
+        end if;
+
         if valid=false then
-            raise not_a_valid_email;
+            raise_application_error(-20001, 'Not a valid email');
+        end if;
+
+        if already then
+            raise_application_error(-20002, 'Email already exists');
         end if;
     end;
 
@@ -142,9 +182,14 @@ create table CUSTOMER(
     gender varchar2(10),
     address addr,
     dob date,
+    password varchar2(30),
 
+    constraint pass_check2 check ( length(password)>=8 ),
     constraint pk_customer_id primary key (customer_id)
 );
+
+create index CUSTOMER_email
+on CUSTOMER(email);
 
 create table CUSTOMER_PHONE(
     customer_id number,
@@ -159,13 +204,28 @@ create or replace trigger check_email_trigger_customer
     for each row
     declare
         valid boolean;
+        already boolean:=false;
+        cnt number;
+
         not_a_valid_email EXCEPTION ;
-        pragma exception_init ( not_a_valid_email, -2001 );
+        pragma exception_init ( not_a_valid_email, -20001 );
+        email_already_exists exception;
+        pragma exception_init ( email_already_exists, -20002 );
     begin
         valid:=check_email(:new.email);
 
+        select count(*) into cnt from CUSTOMER where email=:new.email;
+
+        if cnt>0 then
+            already:=true;
+        end if;
+
         if valid=false then
-            raise not_a_valid_email;
+            raise_application_error(-20001, 'Not a valid email');
+        end if;
+
+        if already then
+            raise_application_error(-20002, 'Email already exists');
         end if;
     end;
 
@@ -230,22 +290,42 @@ create table VETERINARIAN(
     dob date,
     salary number(10),
     qualification varchar2(20),
+    password varchar2(30),
 
+    constraint pass_check3 check ( length(password)>=8 ),
     constraint pk_vet_id primary key (vet_id)
 );
+
+create index vet_email
+on VETERINARIAN(email);
 
 create or replace trigger check_email_trigger_vet
     before insert on VETERINARIAN
     for each row
     declare
         valid boolean;
+        already boolean:=false;
+        cnt number;
+
         not_a_valid_email EXCEPTION ;
-        pragma exception_init ( not_a_valid_email, -2001 );
+        pragma exception_init ( not_a_valid_email, -20001 );
+        email_already_exists exception;
+        pragma exception_init ( email_already_exists, -20002 );
     begin
         valid:=check_email(:new.email);
 
+        select count(*) into cnt from VETERINARIAN where email=:new.email;
+
+        if cnt>0 then
+            already:=true;
+        end if;
+
         if valid=false then
-            raise not_a_valid_email;
+            raise_application_error(-20001, 'Not a valid email');
+        end if;
+
+        if already then
+            raise_application_error(-20002, 'Email already exists');
         end if;
     end;
 
@@ -418,7 +498,7 @@ from (
 join VET_PHONE on A.VET_ID = VET_PHONE.VET_ID
 group by A.vet_id, name,  "Total Checkups";
 
-create or replace view vet_view as
+create or replace view vet_v as
     select V.vet_ID, name, email, gender, V.address.house || ', ' || V.address.street || ', ' || V.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth",
            floor(months_between(sysdate, dob)/12) as Age,salary, qualification, listagg(PHONE_NO, ', ') as Phone
     from VETERINARIAN V JOIN vet_PHONE on V.vet_ID=vet_PHONE.vet_ID

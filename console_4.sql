@@ -277,6 +277,8 @@ insert into CUSTOMER (NAME, EMAIL, GENDER, ADDRESS, DOB)
 values ('razu','sarah@gmail.com','male',ADDR('Dhaka','mirpur 14 Road','146'),to_date('24/08/1994','dd-mm-yyyy'));
 insert into CUSTOMER (NAME, EMAIL, GENDER, ADDRESS, DOB)
 values ('sarah','sarah1971@gmail.com','female',ADDR('Dhaka','mianus Road','190'),to_date('24/08/1995','dd-mm-yyyy'));
+insert into CUSTOMER (NAME, EMAIL, GENDER, ADDRESS, DOB)
+values ('Jomilar Ma', 'sarahi@gmail.com','female',ADDR('Borishal','12','221'), to_date('24/08/1995','dd-mm-yyyy'));
 
 
 --customer phone
