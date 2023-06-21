@@ -1,30 +1,31 @@
 --select tables generation
-select 'select * from '||table_NAME||';' from USER_TABLES;
+select 'select * from '||table_NAME||';' from USER_TABLES
+order by TABLE_NAME;
+
 select * from ADMIN;
 select * from ADMIN_PHONE;
-select * from STAFF;
-select * from STAFF_PHONE;
+select * from CABIN;
+select * from CHECKUP_DAYCARE;
+select * from CHECKUP_RESCUE;
 select * from CUSTOMER;
 select * from CUSTOMER_PHONE;
-select * from FEEDBACK;
+select * from DAYCARE_ANIMAL;
+select * from DISEASES;
 select * from DONATION;
 select * from DONATION_PHONE;
-select * from VETERINARIAN;
-select * from VET_PHONE;
-select * from SHIFT;
-select * from WORKS_AT;
+select * from FEEDBACK;
+select * from HEALTH_RECORD;
+select * from LOGIN order by SERIAL;
+select * from RESCUED_ANIMAL;
 select * from RESCUER;
 select * from RESCUER_PHONE;
-select * from CABIN;
-select * from HEALTH_RECORD;
-select * from DISEASES;
-select * from RESCUED_ANIMAL;
-select * from DAYCARE_ANIMAL;
-select * from CHECKUP_RESCUE;
-select * from CHECKUP_DAYCARE;
 select * from RESCUES;
-
-
+select * from SHIFT;
+select * from STAFF;
+select * from STAFF_PHONE;
+select * from VETERINARIAN;
+select * from VET_PHONE;
+select * from WORKS_AT;
 
 
 --drop tables generation
@@ -109,6 +110,7 @@ select * from CUSTOMER_VIEW;
 select * from DOCTOR_SHIFT;
 select * from RESCUER_VIEW;
 select * from VET_VIEW;
+select * from VET_V;
 select * from CABIN_INFO;
 select * from DAYCARE_ANIMAL_HISTORY;
 select * from RESCUED_ANIMAL_HISTORY;
@@ -136,12 +138,9 @@ select * from CUSTOMER_PRICING;
 select * from VET_ANIMAL;
 select * from SHIFT_VIEW;
 select * from DONATION_VIEW;
-select * from VET_V;
 select * from POSITIVE_FEEDBACK;
 select * from NEGATIVE_FEEDBACK;
 select * from DAYCARE_ANIMAL_RECORD_VIEW;
 select * from RESCUED_ANIMAL_RECORD_VIEW;
-
-
 
 commit ;

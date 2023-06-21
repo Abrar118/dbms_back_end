@@ -479,8 +479,6 @@ create table CHECKUP_DAYCARE(
 
 
 create or replace view vet_view as
-select A.vet_id, name, "Total Checkups", listagg(PHONE_NO, ', ') as Phone
-from (
     select A.vet_id, A.name, A.checkup_count+B.checkup_count as "Total Checkups"
     from
         (select VETERINARIAN.vet_id, name, count(rescued_animal_id) as checkup_count
@@ -493,10 +491,7 @@ from (
     from VETERINARIAN, CHECKUP_DAYCARE
     where VETERINARIAN.vet_id=CHECKUP_DAYCARE.vet_id(+)
     group by name, VETERINARIAN.vet_id) B
-    where A.VET_ID=B.VET_ID
- ) A
-join VET_PHONE on A.VET_ID = VET_PHONE.VET_ID
-group by A.vet_id, name,  "Total Checkups";
+    where A.VET_ID=B.VET_ID;
 
 create or replace view vet_v as
     select V.vet_ID, name, email, gender, V.address.house || ', ' || V.address.street || ', ' || V.address.city as Address, to_char(dob, 'dd-mm-yyyy') as "Date of Birth",
