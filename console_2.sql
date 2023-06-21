@@ -63,6 +63,7 @@ drop view CUSTOMER_VIEW;
 drop view VET_VIEW;
 drop view DOCTOR_SHIFT;
 drop view STAFF_VIEW;
+drop view VET_V;
 drop view SHIFT_VIEW;
 drop view CABIN_INFO;
 drop view DAYCARE_ANIMAL_HISTORY;
@@ -89,22 +90,28 @@ drop view RESCUE_INFO;
 drop view TOTAL_DAYCARE_SERVICES;
 drop view CUSTOMER_PRICING;
 drop view VET_ANIMAL;
+drop view  DONATION_VIEW;
 
+
+
+--drop function and type
+drop function CHECK_EMAIL;
+drop function  CHECK_PHONE;
+drop type ADDR;
 
 
 
 --all views generation
 select 'select * from '||VIEW_NAME||';' from USER_VIEWS;
 select * from ADMIN_VIEW;
-select * from CUSTOMER_VIEW;
-select * from VET_VIEW;
-select * from DOCTOR_SHIFT;
 select * from STAFF_VIEW;
-select * from SHIFT_VIEW;
+select * from CUSTOMER_VIEW;
+select * from DOCTOR_SHIFT;
+select * from RESCUER_VIEW;
+select * from VET_VIEW;
 select * from CABIN_INFO;
 select * from DAYCARE_ANIMAL_HISTORY;
 select * from RESCUED_ANIMAL_HISTORY;
-select * from CUSTOMER_ANIMAL_CABIN;
 select * from CUSTOMER_DONATION;
 select * from NON_CUSTOMER_DONATION;
 select * from FEEDBACK_VIEW;
@@ -115,6 +122,7 @@ select * from UNVACCINATED_RESCUED_ANIMAL;
 select * from ISOLATED_DAYCARE_ANIMAL;
 select * from ISOLATED_RESCUED_ANIMAL;
 select * from RESCUER_ANIMAL_CABIN;
+select * from CUSTOMER_ANIMAL_CABIN;
 select * from STAFF_SPECIALIZATION;
 select * from STAFF_REVIEW;
 select * from ADMIN_REVIEW;
@@ -126,6 +134,13 @@ select * from RESCUE_INFO;
 select * from TOTAL_DAYCARE_SERVICES;
 select * from CUSTOMER_PRICING;
 select * from VET_ANIMAL;
+select * from SHIFT_VIEW;
+select * from DONATION_VIEW;
+select * from VET_V;
+select * from POSITIVE_FEEDBACK;
+select * from NEGATIVE_FEEDBACK;
+select * from DAYCARE_ANIMAL_RECORD_VIEW;
+select * from RESCUED_ANIMAL_RECORD_VIEW;
 
 
 
