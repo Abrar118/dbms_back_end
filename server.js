@@ -822,6 +822,29 @@ app.get("/unvaccinated_day_care_animal", (req, res) => {
     });
 });
 
+app.get("/daycare_animal_record_view", (req, res) => {
+  connection
+    .get_data("select * from daycare_animal_record_view")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/rescued_animal_record_view", (req, res) => {
+  connection
+    .get_data("select * from rescued_animal_record_view")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
 //rescued animal
 app.get("/rescued_animal", (req, res) => {
   connection
