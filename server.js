@@ -3,6 +3,7 @@ import connection from "./connection.js";
 import cors from "cors";
 const app = express();
 const port = process.env.PORT || 3002;
+const router = express.Router();
 
 app.use(cors());
 app.use(express.json());
@@ -13,6 +14,23 @@ app.get("/admin", (req, res) => {
     .get_data("select * from ADMIN_VIEW")
     .then((result) => {
       //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/admin_password/:email/:password", (req, res) => {
+  const email = req.params.email;
+  const password = req.params.password;
+
+  console.log(email, password);
+
+  connection.get_data(
+      `select * from admin where EMAIL='${email}' and PASSWORD='${password}'`
+    )
+    .then((result) => {
       res.send(result);
     })
     .catch((error) => {
@@ -77,13 +95,16 @@ app.get(
       9: designation,
     };
 
-    connection.insert(
+    connection
+      .insert(
         `Insert into ADMIN(NAME, EMAIL, GENDER, ADDRESS, DOB, SALARY, DESIGNATION)
     values (:1,:2,:3,ADDR(:4,:5,:6),to_date(:7,'dd-mm-yyyy'),:8,:9)`,
-        params)
+        params
+      )
       .then((result) => {
         //res.send(result);
-        connection.insert(
+        connection
+          .insert(
             `insert into ADMIN_PHONE (ADMIN_ID, PHONE_NO)
         values ((select max(ADMIN_ID) from ADMIN),:1)`,
             { 1: phone }
@@ -124,6 +145,34 @@ app.get("/admin_phone_insert/:phone", (req, res) => {
 app.get("/staff", (req, res) => {
   connection
     .get_data("select * from STAFF_VIEW")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/staff_password/:email/:password", (req, res) => {
+  const email = req.params.email;
+  const password = req.params.password;
+
+  console.log(email, password);
+
+  connection.get_data(
+      `select * from staff where EMAIL='${email}' and PASSWORD='${password}'`
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/staff_specialization", (req, res) => {
+  connection
+    .get_data("select * from STAFF_SPECIALIZATION")
     .then((result) => {
       res.send(result);
     })
@@ -285,6 +334,23 @@ app.get("/customer_delete/:id", (req, res) => {
     });
 });
 
+app.get("/customer_password/:email/:password", (req, res) => {
+  const email = req.params.email;
+  const password = req.params.password;
+
+  console.log(email, password);
+
+  connection.get_data(
+      `select * from CUSTOMER where EMAIL='${email}' and PASSWORD='${password}'`
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
 app.get("/customer_update/:set/:sv/:fdn/:val", (req, res) => {
   const set = req.params.set;
   const sv = req.params.sv;
@@ -356,6 +422,23 @@ app.get(
 app.get("/veterinarian", (req, res) => {
   connection
     .get_data("SELECT * FROM vet_v")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/vet_password/:email/:password", (req, res) => {
+  const email = req.params.email;
+  const password = req.params.password;
+
+  console.log(email, password);
+
+  connection.get_data(
+      `select * from veterinarian where EMAIL='${email}' and PASSWORD='${password}'`
+    )
     .then((result) => {
       res.send(result);
     })
@@ -556,6 +639,7 @@ app.get("/vet_animal", (req, res) => {
       res.send(error);
     });
 });
+
 //feedback
 app.get("/feedback", (req, res) => {
   connection
@@ -567,10 +651,19 @@ app.get("/feedback", (req, res) => {
       res.status(500).send(error);
     });
 });
-
-app.get("/feedback_admin_review", (req, res) => {
+app.get("/positive_feedback", (req, res) => {
   connection
-    .get_data("SELECT * FROM admin_review")
+    .get_data("SELECT * FROM positive_feedback")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+app.get("/negative_feedback", (req, res) => {
+  connection
+    .get_data("SELECT * FROM negative_feedback")
     .then((result) => {
       res.send(result);
     })
@@ -579,9 +672,9 @@ app.get("/feedback_admin_review", (req, res) => {
     });
 });
 
-app.get("/feedback_manager_review", (req, res) => {
+app.get("/feedback_admin_review", (req, res) => {
   connection
-    .get_data("SELECT * FROM manager_review")
+    .get_data("SELECT * FROM admin_review")
     .then((result) => {
       res.send(result);
     })
@@ -632,7 +725,6 @@ app.get(
     const message = req.params.message;
     const customerId = req.params.customerId;
 
-
     const params = {
       1: subject,
       2: date,
@@ -641,7 +733,8 @@ app.get(
       5: customerId,
     };
 
-    connection.insert(
+    connection
+      .insert(
         `insert into FEEDBACK (FEEDBACK_SUBJECT, F_DATE, RATING, MESSAGE, CUSTOMER_ID)
         values (:1, to_date(:2, 'dd-mm-yyyy'), :3, :4, :5)`,
         params
@@ -666,6 +759,7 @@ app.get("/day_care_animal", (req, res) => {
       res.send(error);
     });
 });
+
 app.get(
   "/daycare_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:cabin_no/:health_record_id/:customer_id",
   (req, res) => {
@@ -779,12 +873,9 @@ app.get(
       customer_id: customer_id,
     };
 
-    connection
-      .insert(
-        `
-    INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CABIN_NO, HEALTH_RECORD_ID, CUSTOMER_ID)
-    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :cabin_no, :health_record_id, :customer_id)
-  `,
+    connection.insert(`INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CABIN_NO, HEALTH_RECORD_ID, CUSTOMER_ID)
+    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'),
+    :cabin_no, :health_record_id, :customer_id)`,
         params
       )
       .then((result) => {
@@ -828,15 +919,55 @@ app.get("/unvaccinated_rescued_animal", (req, res) => {
     });
 });
 
+//health record
+app.get("/health_record", (req, res) => {
+  connection
+    .get_data("select * from health_record_view")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+//update health record
+app.get("/health_record_update/:set/:sv/:fdn/:val", (req, res) => {
+  const set = req.params.set;
+  const sv = req.params.sv;
+  const fdn = req.params.fdn;
+  const val = req.params.val;
+
+  connection.get_data(
+      "update health_record set " + set + "='" + sv +"' where " +fdn +"=" +val
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
 //rescuer
 app.get("/rescuer", (req, res) => {
-  connection
-    .get_data("SELECT * FROM RESCUER_VIEW")
+  connection.get_data("SELECT * FROM RESCUER_VIEW")
     .then((result) => {
       res.send(result);
     })
     .catch((error) => {
       res.status(500).send(error);
+    });
+});
+
+app.get("/customer_rescuer", (req, res) => {
+  connection
+    .get_data("SELECT * FROM cust_rescuer")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
     });
 });
 
@@ -908,7 +1039,7 @@ app.get("/non_customer_donation", (req, res) => {
 
 app.get("/donation", (req, res) => {
   connection
-    .get_data("select * from DONATION_VIEW")
+    .get_data("select * from DONATION order by donation_no")
     .then((result) => {
       res.send(result);
     })
@@ -946,5 +1077,47 @@ app.get(
       });
   }
 );
+
+
+//log in functions
+app.get("/login/:username", (req, res) => {
+  const username = req.params.username;
+
+  connection.get_data(
+      "select status from login where username='" + username + "'"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+
+app.get("/login_insert/:email/:type/:status", (req, res) => {
+  const username = req.params.email;
+  const type = req.params.type;
+  const status = req.params.status;
+
+  const params = {
+    1: username,
+    2: type,
+    3: status,
+  };
+
+  connection.insert(
+      `insert into login (email, user_type, status)
+      values (:1, :2, :3)`,
+      params
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+
+});
 
 app.listen(port);
