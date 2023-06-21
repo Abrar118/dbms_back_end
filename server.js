@@ -479,14 +479,7 @@ app.get("/veterinarian_update/:set/:sv/:fdn/:val", (req, res) => {
 
   connection
     .get_data(
-      "UPDATE VETERINARIAN SET " +
-        set +
-        "='" +
-        sv +
-        "' WHERE " +
-        fdn +
-        "=" +
-        val
+      "UPDATE VETERINARIAN SET " + set +"='" +sv +"' WHERE " + fdn + "=" + val
     )
     .then((result) => {
       res.send(result);
@@ -761,7 +754,7 @@ app.get("/day_care_animal", (req, res) => {
 });
 
 app.get(
-  "/daycare_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:cabin_no/:health_record_id/:customer_id",
+  "/daycare_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:customer_id",
   (req, res) => {
     const age = req.params.age;
     const breed = req.params.breed;
@@ -770,8 +763,6 @@ app.get(
     const type = req.params.type;
     const coming_date = req.params.coming_date;
     const release_date = req.params.release_date;
-    const cabin_no = req.params.cabin_no;
-    const health_record_id = req.params.health_record_id;
     const customer_id = req.params.customer_id;
 
     const params = {
@@ -782,17 +773,14 @@ app.get(
       type: type,
       coming_date: coming_date,
       release_date: release_date,
-      cabin_no: cabin_no,
-      health_record_id: health_record_id,
       customer_id: customer_id,
     };
 
     connection
       .insert(
         `
-    INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CABIN_NO, HEALTH_RECORD_ID, CUSTOMER_ID)
-    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :cabin_no, :health_record_id, :customer_id)
-  `,
+    INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CUSTOMER_ID)
+    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :customer_id)`,
         params
       )
       .then((result) => {
@@ -847,7 +835,7 @@ app.get("/rescued_animal", (req, res) => {
 });
 
 app.get(
-  "/rescued_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:cabin_no/:health_record_id/:customer_id",
+  "/rescued_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:customer_id",
   (req, res) => {
     const age = req.params.age;
     const breed = req.params.breed;
@@ -856,8 +844,6 @@ app.get(
     const type = req.params.type;
     const coming_date = req.params.coming_date;
     const release_date = req.params.release_date;
-    const cabin_no = req.params.cabin_no;
-    const health_record_id = req.params.health_record_id;
     const customer_id = req.params.customer_id;
 
     const params = {
@@ -873,9 +859,8 @@ app.get(
       customer_id: customer_id,
     };
 
-    connection.insert(`INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CABIN_NO, HEALTH_RECORD_ID, CUSTOMER_ID)
-    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'),
-    :cabin_no, :health_record_id, :customer_id)`,
+    connection.insert(`INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CUSTOMER_ID)
+    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :customer_id)`,
         params
       )
       .then((result) => {
@@ -947,6 +932,57 @@ app.get("/health_record_update/:set/:sv/:fdn/:val", (req, res) => {
     .catch((error) => {
       res.send(error);
     });
+});
+
+app.get("/health_record_insert/:rabies/:rab_date/:flu/:flu_date/:spay_neuter/:animal_identifier", (req,res)=>{
+  const rabies = req.params.rabies;
+  const rab_date = req.params.rab_date;
+  const flu = req.params.flu;
+  const flu_date = req.params.flu_date;
+  const spay_neuter = req.params.spay_neuter;
+  const animal_identifier = req.params.animal_identifier;
+
+  const params = {
+    1: rabies,
+    2: rab_date,
+    3: flu,
+    4: flu_date,
+    5: spay_neuter,
+    6: animal_identifier
+  };
+
+  connection.insert(`INSERT INTO HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
+    VALUES (:1, TO_DATE(:2, 'dd-mm-yyyy'), :3, TO_DATE(:4, 'dd-mm-yyyy'), :5, :6)`, params)
+  .then((result) => {
+    res.send(result);
+  }).catch(error=>{
+    res.send(error);
+  }
+  );
+});
+
+
+app.get("/disease_insert/:record_id/:disease_name", (req, res) => {
+  const record_id = req.params.record_id;
+  const disease_name = req.params.disease_name;
+
+  const params = {
+    1: record_id,
+    2: disease_name,
+  };
+
+  connection.insert(
+    `insert into DISEASES (HEALTH_RECORD_ID, DISEASE_NAME)
+    VALUES (:1, :2)`,
+    params
+  )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+
 });
 
 //rescuer
