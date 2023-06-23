@@ -1,32 +1,35 @@
 --select tables generation
-select 'select * from '||table_NAME||';' from USER_TABLES
-order by TABLE_NAME;
-
-select * from ADMIN;
-select * from ADMIN_PHONE;
-select * from CABIN;
-select * from CHECKUP_DAYCARE;
-select * from CHECKUP_RESCUE;
-select * from CUSTOMER;
-select * from CUSTOMER_PHONE;
-select * from DAYCARE_ANIMAL;
-select * from DISEASES;
-select * from DONATION;
-select * from DONATION_PHONE;
-select * from FEEDBACK;
-select * from HEALTH_RECORD;
-select * from LOGIN order by SERIAL;
-select * from RESCUED_ANIMAL;
+select 'select * from '||table_NAME||';' from USER_TABLES;
+select * from LOGIN;
+select * from WORKS_AT;
 select * from RESCUER;
 select * from RESCUER_PHONE;
+select * from CABIN;
+select * from HEALTH_RECORD;
+select * from DISEASES;
+select * from RESCUED_ANIMAL;
+select * from DAYCARE_ANIMAL;
+select * from CHECKUP_RESCUE;
+select * from CHECKUP_DAYCARE;
 select * from RESCUES;
-select * from SHIFT;
+select * from PENDING_ANIMAL;
+select * from ADMIN;
+select * from ADMIN_PHONE;
 select * from STAFF;
 select * from STAFF_PHONE;
+select * from CUSTOMER;
+select * from CUSTOMER_PHONE;
+select * from FEEDBACK;
+select * from DONATION;
+select * from DONATION_PHONE;
 select * from VETERINARIAN;
 select * from VET_PHONE;
-select * from WORKS_AT;
+select * from SHIFT;
 
+
+update login set status=0 where  serial=(select max(serial) from login);
+
+select STATUS from LOGIN where serial=(select max(serial) from login);
 
 --drop tables generation
 select 'drop table '||table_name||' cascade constraints;' from user_tables;
@@ -53,6 +56,7 @@ drop table DAYCARE_ANIMAL cascade constraints;
 drop table CHECKUP_RESCUE cascade constraints;
 drop table CHECKUP_DAYCARE cascade constraints;
 drop table RESCUES cascade constraints;
+drop table login;
 
 
 
@@ -99,21 +103,22 @@ drop view  DONATION_VIEW;
 drop function CHECK_EMAIL;
 drop function  CHECK_PHONE;
 drop type ADDR;
+drop SEQUENCE feedback_serial;
 
 
 
 --all views generation
 select 'select * from '||VIEW_NAME||';' from USER_VIEWS;
 select * from ADMIN_VIEW;
-select * from STAFF_VIEW;
 select * from CUSTOMER_VIEW;
-select * from DOCTOR_SHIFT;
-select * from RESCUER_VIEW;
 select * from VET_VIEW;
-select * from VET_V;
-select * from CABIN_INFO;
-select * from DAYCARE_ANIMAL_HISTORY;
-select * from RESCUED_ANIMAL_HISTORY;
+select * from DOCTOR_SHIFT;
+select * from STAFF_VIEW;
+select * from SHIFT_VIEW;
+select * from CABIN_INFO; ---baki
+select * from DAYCARE_ANIMAL_HISTORY;   ---baki
+select * from RESCUED_ANIMAL_HISTORY;    ---baki
+select * from CUSTOMER_ANIMAL_CABIN;
 select * from CUSTOMER_DONATION;
 select * from NON_CUSTOMER_DONATION;
 select * from FEEDBACK_VIEW;
@@ -124,7 +129,6 @@ select * from UNVACCINATED_RESCUED_ANIMAL;
 select * from ISOLATED_DAYCARE_ANIMAL;
 select * from ISOLATED_RESCUED_ANIMAL;
 select * from RESCUER_ANIMAL_CABIN;
-select * from CUSTOMER_ANIMAL_CABIN;
 select * from STAFF_SPECIALIZATION;
 select * from STAFF_REVIEW;
 select * from ADMIN_REVIEW;
@@ -136,11 +140,8 @@ select * from RESCUE_INFO;
 select * from TOTAL_DAYCARE_SERVICES;
 select * from CUSTOMER_PRICING;
 select * from VET_ANIMAL;
-select * from SHIFT_VIEW;
-select * from DONATION_VIEW;
-select * from POSITIVE_FEEDBACK;
-select * from NEGATIVE_FEEDBACK;
-select * from DAYCARE_ANIMAL_RECORD_VIEW;
-select * from RESCUED_ANIMAL_RECORD_VIEW;
+select * from cust_rescuer;
+
+
 
 commit ;

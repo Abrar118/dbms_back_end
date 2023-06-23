@@ -77,6 +77,8 @@ insert into RESCUED_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, RESCUED_FROM, IS_ADO
 values (5, 'Persian', 7, 300, 'Cat', 'Individual', NULL, NULL);
 insert into RESCUED_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, RESCUED_FROM, IS_ADOPTED, ADOPTION_DATE)
 values (5, 'Devon Rex', 7, 300, 'Cat', 'Individual', NULL, NULL);
+insert into RESCUED_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, RESCUED_FROM, IS_ADOPTED, ADOPTION_DATE)
+values (5, 'Wild cat', 7, 250, 'Cat', 'Sumitra', NULL, NULL);
 
 
 
@@ -94,6 +96,8 @@ insert into DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE
 values (5, 'Persian', 6, 400, 'Cat', to_date('21-09-2022', 'dd-mm-yyyy'), to_date('28-09-2022','dd-mm-yyyy'),5);
 insert into DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE,customer_id)
 values (5, 'Persian', 10, 800, 'dog', to_date('21-09-2022', 'dd-mm-yyyy'), to_date('28-09-2022','dd-mm-yyyy'),5);
+insert into DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE,customer_id)
+values (3, 'Somalian', 10, 800, 'cat', to_date('21-09-2021', 'dd-mm-yyyy'), to_date('28-09-2021','dd-mm-yyyy'),2);
 
 
 
@@ -110,6 +114,8 @@ insert into HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIM
 values ('YES', to_date('1-1-2011','dd-mm-yyyy'), 'YES',to_date('1-1-2009','dd-mm-yyyy'), 'NO', 'd_5');
 insert into HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
 values ('YES', to_date('1-1-2011','dd-mm-yyyy'), 'YES',to_date('1-1-2009','dd-mm-yyyy'), 'NO', 'd_6');
+insert into HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
+values ('YES', to_date('1-1-2014','dd-mm-yyyy'), 'YES',to_date('1-3-2011','dd-mm-yyyy'), 'NO', 'd_8');
 
 insert into HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
 values ('NO', NULL, 'YES', to_date('1-1-2002','dd-mm-yyyy'), 'NO', 'r_1');
@@ -140,7 +146,7 @@ values (11, 'High-Rise Syndrome');
 
 ---Admin
 Insert into ADMIN(NAME, EMAIL, GENDER, ADDRESS, DOB, SALARY, DESIGNATION,PASSWORD)
-values ('Mayesha','mayesha54@gmail.com','Female',ADDR('Dhaka','9/A, Satmasjid Road','26'),to_date('30/06/2002','dd-mm-yyyy'),20000,'Receptionist','mayesha#');
+values ('Mayesha','mayesha54@gmail.com','Female', ADDR('Dhaka','9/A, Satmasjid Road','26'),to_date('30/06/2002','dd-mm-yyyy'),20000,'Receptionist','mayesha#');
 Insert into ADMIN(NAME, EMAIL, GENDER, ADDRESS,DOB, SALARY, DESIGNATION,PASSWORD)
 values ('Abrar','abrar003@gmail.com','male',ADDR('Mirpur', 'DOHS Road', '128/3'),to_date('25/07/2002','dd-mm-yyyy'),50000,'Office Manager','abrar#');
 Insert into ADMIN(NAME, EMAIL, GENDER, ADDRESS, DOB, SALARY, DESIGNATION,PASSWORD)

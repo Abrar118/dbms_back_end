@@ -17,7 +17,6 @@ begin
 end;
 
 
-
 create sequence feedback_serial;
 
 create or replace function check_phone(phone varchar2) return boolean is
@@ -512,6 +511,40 @@ create table RESCUES(
 );
 
 
+create table PENDING_ANIMAL(
+    animal_identifier varchar2(10),
+    request_date date,
+
+    constraint pk_pending primary key (animal_identifier)
+);
+
+
+create or replace trigger insert_daycare_to_pending
+    after insert on DAYCARE_ANIMAL
+    for each row
+declare
+    temp_animal_id number;
+    temp_animal_identifier varchar2(10);
+begin
+    temp_animal_id:=:new.daycare_animal_id;
+    temp_animal_identifier:='d_'||temp_animal_id;
+
+    insert into PENDING_ANIMAL (animal_identifier, request_date) values (temp_animal_identifier, to_date(to_char(sysdate, 'dd-mm-yyyy'), 'dd-mm-yyyy'));
+end;
+
+create or replace trigger insert_rescued_to_pending
+    after insert on RESCUED_ANIMAL
+    for each row
+declare
+    temp_animal_id number;
+    temp_animal_identifier varchar2(10);
+begin
+    temp_animal_id:=:new.rescued_animal_id;
+    temp_animal_identifier:='r_'||temp_animal_id;
+
+    insert into PENDING_ANIMAL (animal_identifier, request_date) values (temp_animal_identifier, to_date(to_char(sysdate, 'dd-mm-yyyy'), 'dd-mm-yyyy'));
+end;
+
 
 
 
@@ -554,6 +587,7 @@ begin
                     set EXISTING_QUANTITY=existing_quantity+1
                 where CABIN_NO=i.cabin_no;
                 found:=true;
+
                 exit;
             end if;
         end loop;
@@ -585,6 +619,8 @@ begin
 
     if not found then
         raise not_enough_space_in_cabin;
+    else
+         delete from PENDING_ANIMAL where animal_identifier=:new.animal_identifier;
     end if;
 
     exception
@@ -700,6 +736,8 @@ begin
             raise_application_error(-20001, 'Not enough space in cabin.');
 end;
 
+select unique ("Customer Name"), "Duration", "Daycare Animal ID", CUSTOMER_ANIMAL_CABIN.cabin_no from CUSTOMER_ANIMAL_CABIN,DAYCARE_ANIMAL
+        where upper(type)=(select upper(SPECIALIZATION) from STAFF where EMAIL=(select email from login where serial= (select max(serial) from LOGIN))) and CUSTOMER_ANIMAL_CABIN.customer_id=5;
 
 
 create table login(
@@ -710,7 +748,6 @@ create table login(
 
     constraint pk_login primary key (serial)
 );
-
 
 CREATE OR REPLACE TRIGGER login_status
     BEFORE INSERT ON LOGIN
@@ -737,5 +774,6 @@ EXCEPTION
     WHEN user_already_logged_in THEN
         raise_application_error(-20003, 'User already logged in');
 END;
+
 
 -- commit ;

@@ -27,7 +27,8 @@ app.get("/admin_password/:email/:password", (req, res) => {
 
   console.log(email, password);
 
-  connection.get_data(
+  connection
+    .get_data(
       `select * from admin where EMAIL='${email}' and PASSWORD='${password}'`
     )
     .then((result) => {
@@ -159,7 +160,8 @@ app.get("/staff_password/:email/:password", (req, res) => {
 
   console.log(email, password);
 
-  connection.get_data(
+  connection
+    .get_data(
       `select * from staff where EMAIL='${email}' and PASSWORD='${password}'`
     )
     .then((result) => {
@@ -263,6 +265,8 @@ app.get(
       });
   }
 );
+
+
 //customer queries
 app.get("/customer", (req, res) => {
   connection
@@ -340,7 +344,8 @@ app.get("/customer_password/:email/:password", (req, res) => {
 
   console.log(email, password);
 
-  connection.get_data(
+  connection
+    .get_data(
       `select * from CUSTOMER where EMAIL='${email}' and PASSWORD='${password}'`
     )
     .then((result) => {
@@ -370,7 +375,7 @@ app.get("/customer_update/:set/:sv/:fdn/:val", (req, res) => {
 });
 
 app.get(
-  "/customer_insert/:name/:email/:gender/:city/:street/:house/:dob/:phone",
+  "/customer_insert/:name/:email/:gender/:city/:street/:house/:dob/:phone/:password",
   (req, res) => {
     const name = req.params.name;
     const email = req.params.email;
@@ -380,6 +385,8 @@ app.get(
     const house = req.params.house;
     const dob = req.params.dob;
     const phone = req.params.phone;
+    const password = req.params.password;
+
 
     const params = {
       1: name,
@@ -389,12 +396,12 @@ app.get(
       5: street,
       6: house,
       7: dob,
+      8: password
     };
 
-    connection
-      .insert(
-        `insert into CUSTOMER (NAME, EMAIL, GENDER, ADDRESS, DOB)
-    values (:1,:2,:3,ADDR(:4,:5,:6),to_date(:7,'dd-mm-yyyy'))`,
+    connection.insert(
+        `insert into CUSTOMER (NAME, EMAIL, GENDER, ADDRESS, DOB,PASSWORD)
+    values (:1,:2,:3,ADDR(:4,:5,:6),to_date(:7,'dd-mm-yyyy'), :8)`,
         params
       )
       .then((result) => {
@@ -418,6 +425,73 @@ app.get(
   }
 );
 
+
+app.get("/customer_selfinfo", (req, res) => {
+  connection
+      .get_data(
+          `select * from customer_view where EMAIL = (select EMAIL from LOGIN where SERIAL = (select max(SERIAL) from LOGIN))`
+      )
+      .then((result) => {
+          res.send(result);
+      })
+      .catch((error) => {
+          res.send(error);
+      });
+});
+
+app.get("/customer_selfcabin", (req, res) => {
+  connection
+      .get_data(
+          `select "Duration","Daycare Animal ID",CABIN_NO from  CUSTOMER_ANIMAL_CABIN where CUSTOMER_ID =(select CUSTOMER_ID from CUSTOMER where EMAIL=(select EMAIL from LOGIN where SERIAL= (select max(SERIAL) from LOGIN )))`
+      )
+      .then((result) => {
+          res.send(result);
+      })
+      .catch((error) => {
+          res.send(error);
+      });
+});
+
+app.get("/customer_selfdonation", (req, res) => {
+  connection
+      .get_data(
+          `select  AMOUNT,"Donation Date" from CUSTOMER_DONATION where  EMAIL=(select EMAIL from LOGIN where SERIAL= (select max(SERIAL) from LOGIN ))`
+      )
+      .then((result) => {
+          res.send(result);
+      })
+      .catch((error) => {
+          res.send(error);
+      });
+});
+
+app.get("/c_feedback", (req, res) => {
+  connection
+      .get_data(
+          `select "Feedback Subject", "Feedback Time", RATING, "Feedback Body" from FEEDBACK_VIEW where "Customer Email" = (select EMAIL from LOGIN where SERIAL = (select max(SERIAL) from LOGIN))`
+      )
+      .then((result) => {
+          res.send(result);
+      })
+      .catch((error) => {
+          res.send(error);
+      });
+});
+
+app.get("/customer_selfprice", (req, res) => {
+  connection
+      .get_data(
+          `select TOTAL_PRICE from CUSTOMER_PRICING where CUSTOMER_ID = (select CUSTOMER_ID from CUSTOMER where EMAIL = (select EMAIL from LOGIN where SERIAL = (select max(SERIAL) from LOGIN)))`
+      )
+      .then((result) => {
+          res.send(result);
+      })
+      .catch((error) => {
+          res.send(error);
+      });
+});
+
+
 //vet queries
 app.get("/veterinarian", (req, res) => {
   connection
@@ -436,7 +510,8 @@ app.get("/vet_password/:email/:password", (req, res) => {
 
   console.log(email, password);
 
-  connection.get_data(
+  connection
+    .get_data(
       `select * from veterinarian where EMAIL='${email}' and PASSWORD='${password}'`
     )
     .then((result) => {
@@ -479,7 +554,14 @@ app.get("/veterinarian_update/:set/:sv/:fdn/:val", (req, res) => {
 
   connection
     .get_data(
-      "UPDATE VETERINARIAN SET " + set +"='" +sv +"' WHERE " + fdn + "=" + val
+      "UPDATE VETERINARIAN SET " +
+        set +
+        "='" +
+        sv +
+        "' WHERE " +
+        fdn +
+        "=" +
+        val
     )
     .then((result) => {
       res.send(result);
@@ -708,6 +790,16 @@ app.get("/feedback_staff_review", (req, res) => {
       res.status(500).send(error);
     });
 });
+app.get("/avg_rate", (req, res) => {
+  connection
+    .get_data("SELECT * FROM average_rating")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
 
 app.get(
   "/feedback_insert/:subject/:date/:rating/:message/:customerId",
@@ -744,7 +836,7 @@ app.get(
 ///animal queries
 app.get("/day_care_animal", (req, res) => {
   connection
-    .get_data("select * from DAYCARE_ANIMAL")
+    .get_data("select * from a_ANIMAL")
     .then((result) => {
       res.send(result);
     })
@@ -779,8 +871,9 @@ app.get(
     connection
       .insert(
         `
-    INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CUSTOMER_ID)
-    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :customer_id)`,
+    INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE,CUSTOMER_ID)
+    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'),:customer_id)
+  `,
         params
       )
       .then((result) => {
@@ -791,6 +884,7 @@ app.get(
       });
   }
 );
+
 app.get("/healthy_day_care_animal", (req, res) => {
   connection
     .get_data("select * from HEALTHY_DAYCARE_ANIMAL")
@@ -822,29 +916,6 @@ app.get("/unvaccinated_day_care_animal", (req, res) => {
     });
 });
 
-app.get("/daycare_animal_record_view", (req, res) => {
-  connection
-    .get_data("select * from daycare_animal_record_view")
-    .then((result) => {
-      //console.log(result);
-      res.send(result);
-    })
-    .catch((error) => {
-      res.send(error);
-    });
-});
-
-app.get("/rescued_animal_record_view", (req, res) => {
-  connection
-    .get_data("select * from rescued_animal_record_view")
-    .then((result) => {
-      res.send(result);
-    })
-    .catch((error) => {
-      res.send(error);
-    });
-});
-
 //rescued animal
 app.get("/rescued_animal", (req, res) => {
   connection
@@ -858,16 +929,16 @@ app.get("/rescued_animal", (req, res) => {
 });
 
 app.get(
-  "/rescued_animal_insert/:age/:breed/:weight/:rate/:type/:coming_date/:release_date/:customer_id",
+  "/rescued_animal_insert/:age/:breed/:weight/:rate/:type/:res_from/:is_adopt/:adopt_date",
   (req, res) => {
     const age = req.params.age;
     const breed = req.params.breed;
     const weight = req.params.weight;
     const rate = req.params.rate;
     const type = req.params.type;
-    const coming_date = req.params.coming_date;
-    const release_date = req.params.release_date;
-    const customer_id = req.params.customer_id;
+    const res_from = req.params.res_from;
+    const is_adopt = req.params.is_adopt;
+    const adopt_date = req.params.adopt_date;
 
     const params = {
       age: age,
@@ -875,15 +946,15 @@ app.get(
       weight: weight,
       rate: rate,
       type: type,
-      coming_date: coming_date,
-      release_date: release_date,
-      cabin_no: cabin_no,
-      health_record_id: health_record_id,
-      customer_id: customer_id,
+      res_from: res_from,
+      is_adopt: is_adopt,
+      adopt_date: adopt_date
     };
 
-    connection.insert(`INSERT INTO DAYCARE_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, COMING_DATE, RELEASE_DATE, CUSTOMER_ID)
-    VALUES (:age, :breed, :weight, :rate, :type, TO_DATE(:coming_date, 'dd-mm-yyyy'), TO_DATE(:release_date, 'dd-mm-yyyy'), :customer_id)`,
+    connection
+      .insert(
+        `insert into RESCUED_ANIMAL (AGE, BREED, WEIGHT, RATE, TYPE, RESCUED_FROM, IS_ADOPTED, ADOPTION_DATE)
+    VALUES (:age, :breed, :weight, :rate, :type, :res_from, :is_adopt,TO_DATE(:adopt_date, 'dd-mm-yyyy'))`,
         params
       )
       .then((result) => {
@@ -946,8 +1017,16 @@ app.get("/health_record_update/:set/:sv/:fdn/:val", (req, res) => {
   const fdn = req.params.fdn;
   const val = req.params.val;
 
-  connection.get_data(
-      "update health_record set " + set + "='" + sv +"' where " +fdn +"=" +val
+  connection
+    .get_data(
+      "update health_record set " +
+        set +
+        "='" +
+        sv +
+        "' where " +
+        fdn +
+        "=" +
+        val
     )
     .then((result) => {
       res.send(result);
@@ -956,34 +1035,6 @@ app.get("/health_record_update/:set/:sv/:fdn/:val", (req, res) => {
       res.send(error);
     });
 });
-
-app.get("/health_record_insert/:rabies/:rab_date/:flu/:flu_date/:spay_neuter/:animal_identifier", (req,res)=>{
-  const rabies = req.params.rabies;
-  const rab_date = req.params.rab_date;
-  const flu = req.params.flu;
-  const flu_date = req.params.flu_date;
-  const spay_neuter = req.params.spay_neuter;
-  const animal_identifier = req.params.animal_identifier;
-
-  const params = {
-    1: rabies,
-    2: rab_date,
-    3: flu,
-    4: flu_date,
-    5: spay_neuter,
-    6: animal_identifier
-  };
-
-  connection.insert(`INSERT INTO HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
-    VALUES (:1, TO_DATE(:2, 'dd-mm-yyyy'), :3, TO_DATE(:4, 'dd-mm-yyyy'), :5, :6)`, params)
-  .then((result) => {
-    res.send(result);
-  }).catch(error=>{
-    res.send(error);
-  }
-  );
-});
-
 
 app.get("/disease_insert/:record_id/:disease_name", (req, res) => {
   const record_id = req.params.record_id;
@@ -994,23 +1045,68 @@ app.get("/disease_insert/:record_id/:disease_name", (req, res) => {
     2: disease_name,
   };
 
-  connection.insert(
-    `insert into DISEASES (HEALTH_RECORD_ID, DISEASE_NAME)
+  connection
+    .insert(
+      `insert into DISEASES (HEALTH_RECORD_ID, DISEASE_NAME)
     VALUES (:1, :2)`,
-    params
-  )
+      params
+    )
     .then((result) => {
       res.send(result);
     })
     .catch((error) => {
       res.send(error);
     });
-
 });
+
+app.get(
+  "/health_record_insert/:rabies/:rab_date/:flu/:flu_date/:spay_neuter/:animal_identifier",
+  (req, res) => {
+    const rabies = req.params.rabies;
+    const rab_date = req.params.rab_date;
+    const flu = req.params.flu;
+    const flu_date = req.params.flu_date;
+    const spay_neuter = req.params.spay_neuter;
+    const animal_identifier = req.params.animal_identifier;
+
+    const params = {
+      1: rabies,
+      2: rab_date,
+      3: flu,
+      4: flu_date,
+      5: spay_neuter,
+      6: animal_identifier,
+    };
+
+    connection
+      .insert(
+        `INSERT INTO HEALTH_RECORD (RABIES, RABIES_DATE, FLU, FLU_DATE, SPAY_NEUTER, ANIMAL_IDENTIFIER)
+    VALUES (:1, TO_DATE(:2, 'dd-mm-yyyy'), :3, TO_DATE(:4, 'dd-mm-yyyy'), :5, :6)`,
+        params
+      )
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.send(error);
+      });
+  }
+);
 
 //rescuer
 app.get("/rescuer", (req, res) => {
-  connection.get_data("SELECT * FROM RESCUER_VIEW")
+  connection
+    .get_data("SELECT * FROM RESCUER_VIEW")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.status(500).send(error);
+    });
+});
+app.get("/rescuerInfo", (req, res) => {
+  connection
+    .get_data("SELECT * FROM RESCUE_INFO")
     .then((result) => {
       res.send(result);
     })
@@ -1137,14 +1233,12 @@ app.get(
   }
 );
 
-
 //log in functions
-app.get("/login/:username", (req, res) => {
+app.get("/login_st", (req, res) => {
   const username = req.params.username;
 
-  connection.get_data(
-      "select status from login where username='" + username + "'"
-    )
+  connection
+    .get_data("select status from login where username='" + username + "'")
     .then((result) => {
       res.send(result);
     })
@@ -1153,6 +1247,16 @@ app.get("/login/:username", (req, res) => {
     });
 });
 
+app.get("/login_status", (req, res) => {
+  connection
+    .get_data(`select STATUS from LOGIN where serial=(select max(serial) from login)`)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
 
 app.get("/login_insert/:email/:type/:status", (req, res) => {
   const username = req.params.email;
@@ -1165,7 +1269,8 @@ app.get("/login_insert/:email/:type/:status", (req, res) => {
     3: status,
   };
 
-  connection.insert(
+  connection
+    .insert(
       `insert into login (email, user_type, status)
       values (:1, :2, :3)`,
       params
@@ -1176,7 +1281,245 @@ app.get("/login_insert/:email/:type/:status", (req, res) => {
     .catch((error) => {
       res.send(error);
     });
+});
 
+//logout
+app.get("/logout", (req, res) => {
+  connection
+    .get_data(
+      "update login set status=0 where  serial=(select max(serial) from login)"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+//daycare_animal_record_view
+app.get("/daycare_animal_record_view", (req, res) => {
+  connection
+    .get_data("select * from daycare_animal_record_view")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+//rescued_animal_record_view
+app.get("/rescued_animal_record_view", (req, res) => {
+  connection
+    .get_data("select * from rescued_animal_record_view")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/customer_selfinfo/:email", (req, res) => {
+  connection
+    .get_data("select * from customer_view where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+app.get("/customer_cabin/:email", (req, res) => {
+  connection
+    .get_data(
+      "select  * from  CUSTOMER_ANIMAL_CABIN where CUSTOMER_ID =(select CUSTOMER_ID from CUSTOMER where EMAIL=" +
+        req.params.email +
+        ")"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/customer_donation/:email", (req, res) => {
+  connection
+    .get_data("select * from CUSTOMER_DONATION where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+///customer dashboard
+app.get("/c_feedback/:email", (req, res) => {
+  connection
+    .get_data("select * from FEEDBACK_VIEW where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+app.get("/customer_price/:email", (req, res) => {
+  connection
+    .get_data(
+      "select  * from  CUSTOMER_PRICING where CUSTOMER_ID =(select CUSTOMER_ID from CUSTOMER where EMAIL=" +
+        req.params.email +
+        ")"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+//customer dashboard
+app.get("/customer_selfinfo/:email", (req, res) => {
+  connection
+    .get_data("select * from customer_view where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+app.get("/customer_cabin/:email", (req, res) => {
+  connection
+    .get_data(
+      "select  * from  CUSTOMER_ANIMAL_CABIN where CUSTOMER_ID =(select CUSTOMER_ID from CUSTOMER where EMAIL=" +
+        req.params.email +
+        ")"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/customer_donation/:email", (req, res) => {
+  connection
+    .get_data("select * from CUSTOMER_DONATION where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/c_feedback/:email", (req, res) => {
+  connection
+    .get_data("select * from FEEDBACK_VIEW where EMAIL=" + req.params.email)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+app.get("/customer_price/:email", (req, res) => {
+  connection
+    .get_data(
+      "select  * from  CUSTOMER_PRICING where CUSTOMER_ID =(select CUSTOMER_ID from CUSTOMER where EMAIL=" +
+        req.params.email +
+        ")"
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+//staff dashboard
+
+app.get("staff_find_cabin/:ID", (req, res) => {
+  connection
+    .get_data(
+      "select unique ('Customer Name'), 'Duration', 'Daycare Animal ID', CUSTOMER_ANIMAL_CABIN.cabin_no from CUSTOMER_ANIMAL_CABIN,DAYCARE_ANIMALwhere upper(type)=(select upper(SPECIALIZATION) from STAFF where EMAIL=(select email from login where serial= (select max(serial) from LOGIN))) and CUSTOMER_ANIMAL_CABIN.customer_id=" +
+        req.params.ID
+    )
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
 });
 
 app.listen(port);
+
+
+//cabin
+
+app.get("/cabin_info", (req, res) => {
+  connection
+    .get_data("select * from cabin_info")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+
+app.get(
+  "/cabin_insert/:cabin_size/:existing_quantity/:type/:animal_type",
+  (req, res) => {
+    const cabinSize = req.params.cabin_size;
+    const existingQuantity = req.params.existing_quantity;
+    const type = req.params.type;
+    const animalType = req.params.animal_type;
+
+    const params = {
+      1: cabinSize,
+      2: existingQuantity,
+      3: type,
+      4: animalType,
+    };
+
+    connection
+      .insert(
+        `INSERT INTO CABIN (cabin_size, existing_quantity, type, animal_type)
+        VALUES (:1, :2, :3, :4)`,
+        params
+      )
+      .then((result) => {
+        res.send(result);
+      })
+      .catch((error) => {
+        res.send(error.message);
+      });
+  }
+);
+
+
+///pending table
+app.get("/pending_animal", (req, res) => {
+  connection
+    .get_data("select ANIMAL_IDENTIFIER, to_char(REQUEST_DATE, 'dd-mm-yyyy') from PENDING_ANIMAL")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+
+});
