@@ -289,19 +289,19 @@ values ('Jomilar Ma', 'sarahi@gmail.com','female',ADDR('Borishal','12','221'), t
 
 --customer phone
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (5, '01558095689');
+values (1, '01558095689');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (5, '01768936523');
+values (1, '01768936523');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (6, '01789652354');
+values (2, '01789652354');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (6, '01789654123');
+values (2, '01789654123');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (6, '01698745236');
+values (3, '01698745236');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (7, '01776786523');
+values (4, '01776786523');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
-values (7, '01778936523');
+values (4, '01778936523');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)
 values (5, '01778978923');
 insert into CUSTOMER_PHONE (CUSTOMER_ID, PHONE_NO)

@@ -26,14 +26,14 @@ order by A."Cabin Number";
 
 --animal vet history
 create or replace view daycare_animal_history as
-select daycare_animal_id as "Daycare Animal ID", VETERINARIAN.VET_ID as "Veterinarian ID", initcap(name) "Veterinarian Name", to_char(care_date, 'dd-mm-yyyy') as "Checkup Date"
-from VETERINARIAN join CHECKUP_DAYCARE on VETERINARIAN.VET_ID = CHECKUP_DAYCARE.VET_ID(+)
-order by DAYCARE_ANIMAL_ID;
+select DA.daycare_animal_id as "Daycare Animal ID", TYPE, VETERINARIAN.VET_ID as "Veterinarian ID", initcap(name) "Veterinarian Name", to_char(care_date, 'dd-mm-yyyy') as "Checkup Date"
+from VETERINARIAN join CHECKUP_DAYCARE on VETERINARIAN.VET_ID = CHECKUP_DAYCARE.VET_ID join DAYCARE_ANIMAL DA on CHECKUP_DAYCARE.DAYCARE_ANIMAL_ID = DA.DAYCARE_ANIMAL_ID
+order by Da.DAYCARE_ANIMAL_ID;
 
 create or replace view rescued_animal_history as
-select RESCUED_ANIMAL_ID as "Rescued Animal ID", V.VET_ID as "Veterinarian ID", initcap(name) "Veterinarian Name", to_char(care_date, 'dd-mm-yyyy') as "Checkup Date"
-from VETERINARIAN V join CHECKUP_RESCUE CR on V.VET_ID = CR.VET_ID(+)
-order by RESCUED_ANIMAL_ID;
+select RA.RESCUED_ANIMAL_ID as "Rescued Animal ID", type, V.VET_ID as "Veterinarian ID", initcap(name) "Veterinarian Name", to_char(care_date, 'dd-mm-yyyy') as "Checkup Date"
+from VETERINARIAN V join CHECKUP_RESCUE CR on V.VET_ID = CR.VET_ID join RESCUED_ANIMAL RA on CR.RESCUED_ANIMAL_ID = RA.RESCUED_ANIMAL_ID
+order by RA.RESCUED_ANIMAL_ID;
 
 
 --customer donation
@@ -156,10 +156,10 @@ order by vet_id;
 
 --staff specialization
 create or replace view staff_specialization as
-select specialization "animal_type",listagg('ID '||staff_id||'->Name: '||name, ', ') as specialized_staff
+select specialization "animal_type",staff_id, initcap(name) as "Name"
 from staff
-group by specialization
 order by specialization;
+
 
 --feedback categorization
 create or replace view staff_review as
@@ -262,20 +262,6 @@ select RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FL
 from temp_record_table t join DISEASES D on t.HEALTH_RECORD_ID=D.HEALTH_RECORD_ID(+)
 group by RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FLU_DATE, SPAY_NEUTER
 order by RESCUED_ANIMAL_ID;
-
-
-
---staff specialization customer animal
-create or replace view staff_specialization_customer_animal_cabin as
-    select CAC.CUSTOMER_ID, CAC."Customer Name", CAC."Duration", CAC."Daycare Animal ID", CAC.CABIN_NO, C.EXISTING_QUANTITY, C.CAPACITY, C.TYPE
-from CUSTOMER_ANIMAL_CABIN CAC join CABIN C on CAC.CABIN_NO=C.CABIN_NO
-WHERE upper(C.ANIMAL_TYPE)=(
-    select upper(SPECIALIZATION) from staff where EMAIL=(
-        select email from LOGIN where SERIAL=(
-                select max(SERIAL) from LOGIN
-            )
-        )
-);
 
 
 ---all general admin view

@@ -27,7 +27,7 @@ select * from VET_PHONE;
 select * from SHIFT;
 
 
-update login set status=1 where  serial=(select max(serial) from login);
+update login set status=0 where  serial=41;
 
 select STATUS from LOGIN where serial=(select max(serial) from login);
 
@@ -62,7 +62,6 @@ drop table login;
 
 --drop view
 select 'drop view '||VIEW_NAME||';' from USER_VIEWS;
-drop view RESCUER_VIEW;
 drop view ADMIN_VIEW;
 drop view CUSTOMER_VIEW;
 drop view VET_VIEW;
@@ -95,7 +94,7 @@ drop view RESCUE_INFO;
 drop view TOTAL_DAYCARE_SERVICES;
 drop view CUSTOMER_PRICING;
 drop view VET_ANIMAL;
-drop view  DONATION_VIEW;
+drop view DONATION_VIEW;
 
 
 
@@ -146,11 +145,12 @@ select * from POSITIVE_FEEDBACK;
 select * from NEGATIVE_FEEDBACK;
 select * from DAYCARE_ANIMAL_RECORD_VIEW;
 select * from RESCUED_ANIMAL_RECORD_VIEW;
-select * from STAFF_SPECIALIZATION_CUSTOMER_ANIMAL_CABIN;
 select * from CUST_RESCUER;
 select * from ALL_GEN_ADMIN_VIEW;
 select * from ALL_GEN_VET_V;
 select * from ALL_GEN_STAFF_VIEW;
+
+select  AMOUNT,"Donation Date" from CUSTOMER_DONATION where  EMAIL=(select EMAIL from LOGIN where Status=1);
 
 
 commit ;
