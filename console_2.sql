@@ -1,6 +1,6 @@
 --select tables generation
 select 'select * from '||table_NAME||';' from USER_TABLES;
-select * from LOGIN;
+select * from LOGIN order by SERIAL;
 select * from WORKS_AT;
 select * from RESCUER;
 select * from RESCUER_PHONE;
@@ -27,7 +27,7 @@ select * from VET_PHONE;
 select * from SHIFT;
 
 
-update login set status=0 where  serial=(select max(serial) from login);
+update login set status=1 where  serial=(select max(serial) from login);
 
 select STATUS from LOGIN where serial=(select max(serial) from login);
 
@@ -110,15 +110,13 @@ drop SEQUENCE feedback_serial;
 --all views generation
 select 'select * from '||VIEW_NAME||';' from USER_VIEWS;
 select * from ADMIN_VIEW;
-select * from CUSTOMER_VIEW;
-select * from VET_VIEW;
-select * from DOCTOR_SHIFT;
 select * from STAFF_VIEW;
-select * from SHIFT_VIEW;
-select * from CABIN_INFO; ---baki
-select * from DAYCARE_ANIMAL_HISTORY;   ---baki
-select * from RESCUED_ANIMAL_HISTORY;    ---baki
-select * from CUSTOMER_ANIMAL_CABIN;
+select * from CUSTOMER_VIEW;
+select * from DOCTOR_SHIFT;
+select * from VET_VIEW;
+select * from CABIN_INFO;
+select * from DAYCARE_ANIMAL_HISTORY;
+select * from RESCUED_ANIMAL_HISTORY;
 select * from CUSTOMER_DONATION;
 select * from NON_CUSTOMER_DONATION;
 select * from FEEDBACK_VIEW;
@@ -129,6 +127,7 @@ select * from UNVACCINATED_RESCUED_ANIMAL;
 select * from ISOLATED_DAYCARE_ANIMAL;
 select * from ISOLATED_RESCUED_ANIMAL;
 select * from RESCUER_ANIMAL_CABIN;
+select * from CUSTOMER_ANIMAL_CABIN;
 select * from STAFF_SPECIALIZATION;
 select * from STAFF_REVIEW;
 select * from ADMIN_REVIEW;
@@ -140,8 +139,18 @@ select * from RESCUE_INFO;
 select * from TOTAL_DAYCARE_SERVICES;
 select * from CUSTOMER_PRICING;
 select * from VET_ANIMAL;
-select * from cust_rescuer;
-
+select * from SHIFT_VIEW;
+select * from DONATION_VIEW;
+select * from VET_V;
+select * from POSITIVE_FEEDBACK;
+select * from NEGATIVE_FEEDBACK;
+select * from DAYCARE_ANIMAL_RECORD_VIEW;
+select * from RESCUED_ANIMAL_RECORD_VIEW;
+select * from STAFF_SPECIALIZATION_CUSTOMER_ANIMAL_CABIN;
+select * from CUST_RESCUER;
+select * from ALL_GEN_ADMIN_VIEW;
+select * from ALL_GEN_VET_V;
+select * from ALL_GEN_STAFF_VIEW;
 
 
 commit ;

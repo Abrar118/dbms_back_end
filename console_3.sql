@@ -72,20 +72,20 @@ and rating <3.5;
 
 --healthy animal
 create or replace view healthy_daycare_animal as
-select DAYCARE_ANIMAL_ID,breed,type,to_char(COMING_DATE,'dd-mm-yyyy') AS "coming date",to_char(RELEASE_DATE,'dd-mm-yyyy') as "release date",CABIN_NO,CUSTOMER_ID
-from DAYCARE_ANIMAL
+select DAYCARE_ANIMAL_ID,breed,type,to_char(COMING_DATE,'dd-mm-yyyy') AS "Coming date",to_char(RELEASE_DATE,'dd-mm-yyyy') as "Release date",CABIN_NO,initcap(C2.NAME) as "Customer Name"
+from DAYCARE_ANIMAL join CUSTOMER C2 on DAYCARE_ANIMAL.CUSTOMER_ID = C2.CUSTOMER_ID
 where CABIN_NO in (
     select CABIN_NO from CABIN where upper(CABIN.TYPE)='HEALTHY'
     )
 order by DAYCARE_ANIMAL_ID;
 
 create or replace view healthy_rescued_animal as
-select *
-from RESCUED_ANIMAL
+select RESCUES.RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT,TYPE, RESCUED_FROM, IS_ADOPTED, ADOPTION_DATE, HEALTH_RECORD_ID, CABIN_NO, R.NAME as "Rescuer Name", RESCUE_DATE
+from RESCUED_ANIMAL join RESCUES on RESCUED_ANIMAL.RESCUED_ANIMAL_ID=RESCUES.RESCUED_ANIMAL_ID join RESCUER R on RESCUES.RESCUER_ID = R.RESCUER_ID
 where CABIN_NO in (
     select CABIN_NO from CABIN where upper(CABIN.TYPE)='HEALTHY'
     )
-order by RESCUED_ANIMAL_ID;
+order by RESCUES.RESCUED_ANIMAL_ID;
 
 select * from HEALTHY_DAYCARE_ANIMAL;
 
@@ -193,7 +193,6 @@ GROUP BY c.customer_id, c.name
 order by c.customer_id;
 
 --customer price
-
 CREATE OR REPLACE VIEW CUSTOMER_PRICING AS
     SELECT C.CUSTOMER_ID, C.NAME, C.EMAIL, SUM((DA.RELEASE_DATE - DA.COMING_DATE) * DA.RATE) AS TOTAL_PRICE
     FROM CUSTOMER C JOIN DAYCARE_ANIMAL DA ON C.CUSTOMER_ID = DA.CUSTOMER_ID
@@ -264,32 +263,6 @@ from temp_record_table t join DISEASES D on t.HEALTH_RECORD_ID=D.HEALTH_RECORD_I
 group by RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FLU_DATE, SPAY_NEUTER
 order by RESCUED_ANIMAL_ID;
 
---daycare animal health
-create or replace view daycare_animal_record_view as
-    with temp_record_table as (
-        select DA.DAYCARE_ANIMAL_ID, DA.AGE, DA.BREED, DA.WEIGHT, DA.TYPE, HR.RABIES, HR.RABIES_DATE, HR.FLU, HR.FLU_DATE, HR.SPAY_NEUTER, HEALTH_RECORD_ID
-        from DAYCARE_ANIMAL DA join HEALTH_RECORD HR on DA.HEALTH_RECORD_ID = HR.RECORD_ID
-        group by DA.DAYCARE_ANIMAL_ID, DA.AGE, DA.BREED, DA.WEIGHT, DA.TYPE, HR.RABIES, HR.RABIES_DATE, HR.FLU, HR.FLU_DATE, HR.SPAY_NEUTER, HEALTH_RECORD_ID
-        order by DAYCARE_ANIMAL_ID
-    )
-select DAYCARE_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, to_char(RABIES_DATE,'dd-mm-yyyy') as "Rabies Date", flu, to_char(FLU_DATE,'dd-mm-yyyy')  as "Flu Date", SPAY_NEUTER, listagg(DISEASE_NAME, ', ') as "Diseases"
-from temp_record_table t join DISEASES D on t.HEALTH_RECORD_ID=D.HEALTH_RECORD_ID(+)
-group by DAYCARE_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FLU_DATE, SPAY_NEUTER
-order by DAYCARE_ANIMAL_ID;
-
-
---rescued animal health
-create or replace view rescued_animal_record_view as
-    with temp_record_table as (
-        select RA.RESCUED_ANIMAL_ID, RA.AGE, RA.BREED, RA.WEIGHT, RA.TYPE, HR.RABIES, HR.RABIES_DATE, HR.FLU, HR.FLU_DATE, HR.SPAY_NEUTER, HEALTH_RECORD_ID
-        from RESCUED_ANIMAL RA join HEALTH_RECORD HR on RA.HEALTH_RECORD_ID = HR.RECORD_ID
-        group by RA.RESCUED_ANIMAL_ID, RA.AGE, RA.BREED, RA.WEIGHT, RA.TYPE, HR.RABIES, HR.RABIES_DATE, HR.FLU, HR.FLU_DATE, HR.SPAY_NEUTER, HEALTH_RECORD_ID
-        order by RESCUED_ANIMAL_ID
-    )
-select RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FLU_DATE, SPAY_NEUTER, listagg(DISEASE_NAME, ', ') as "Diseases"
-from temp_record_table t join DISEASES D on t.HEALTH_RECORD_ID=D.HEALTH_RECORD_ID(+)
-group by RESCUED_ANIMAL_ID, AGE, BREED, WEIGHT, TYPE, RABIES, RABIES_DATE, flu, FLU_DATE, SPAY_NEUTER
-order by RESCUED_ANIMAL_ID;
 
 
 --staff specialization customer animal
