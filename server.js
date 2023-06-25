@@ -486,6 +486,17 @@ app.get("/veterinarian", (req, res) => {
     });
 });
 
+app.get("/vet_selfInfo", (req, res) => {
+  connection
+    .get_data("SELECT * FROM vet_v where email=(select email from login where status=1)")
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
 app.get("/vet_password/:email/:password", (req, res) => {
   const email = req.params.email;
   const password = req.params.password;
@@ -677,7 +688,7 @@ app.get("/vet_selfanimal/:vet_id", (req, res) => {
 
 app.get("/daycare_animal_selfhistory/:vet_id", (req, res) => {
   connection
-    .insert(`select * from DAYCARE_ANIMAL_HISTORY "Veterinarian ID"=:1`,{1: req.params.vet_id})
+    .insert(`select * from DAYCARE_ANIMAL_HISTORY where "Veterinarian ID"=:1`,{1: req.params.vet_id})
     .then((result) => {
       res.send(result);
     })
@@ -688,7 +699,7 @@ app.get("/daycare_animal_selfhistory/:vet_id", (req, res) => {
 
 app.get("/rescued_animal_selfhistory/vet_id", (req, res) => {
   connection
-    .insert(`select * from RESCUED_ANIMAL_HISTORY "Veterinarian ID"=:1`,{1: req.params.vet_id})
+    .insert(`select * from RESCUED_ANIMAL_HISTORY where "Veterinarian ID"=:1`,{1: req.params.vet_id})
     .then((result) => {
       res.send(result);
     })
@@ -830,9 +841,9 @@ app.get(
 );
 
 ///animal queries
-app.get("/day_care_animal", (req, res) => {
+app.get("/daycare_animal", (req, res) => {
   connection
-    .get_data("select * from DAYCARE_ANIMAL")
+    .get_data(`select * from daycare_view`)
     .then((result) => {
       res.send(result);
     })
@@ -1128,7 +1139,7 @@ app.get(
 //rescuer
 app.get("/rescuer", (req, res) => {
   connection
-    .get_data("SELECT * FROM RESCUER_VIEW")
+    .get_data("SELECT RESCUER_ID, name, listagg(PHONE_NO, ', ')  FROM RESCUER natural join RESCUER_PHONE group by RESCUER_ID, name order by rescuer_id")
     .then((result) => {
       res.send(result);
     })
@@ -1136,6 +1147,8 @@ app.get("/rescuer", (req, res) => {
       res.status(500).send(error);
     });
 });
+
+
 app.get("/rescuerInfo", (req, res) => {
   connection
     .get_data("SELECT * FROM RESCUE_INFO")
@@ -1162,36 +1175,16 @@ app.get("/rescuer_insert/:name/:phone", (req, res) => {
   const name = req.params.name;
   const phone = req.params.phone;
 
-  let rescuerId;
-
-  const rescuerParams = {
-    name: name,
-  };
-
-  connection
-    .insert(
-      `
-    INSERT INTO RESCUER (NAME)
-    VALUES (:name)
-    RETURNING RESCUER_ID INTO :rescuerId
-  `,
-      rescuerParams
+  connection.insert(`INSERT INTO RESCUER (NAME)
+    VALUES (:1)`,
+      {1: name}
     )
     .then((result) => {
-      rescuerId = result.outBinds.rescuerId;
-
-      const phoneParams = {
-        rescuerId: rescuerId,
-        phone: phone,
-      };
-
-      return connection.insert(
-        `
+      connection.insert(`
         INSERT INTO RESCUER_PHONE (RESCUER_ID, PHONE_NO)
-        VALUES (:rescuerId, :phone)
-      `,
-        phoneParams
-      );
+        VALUES ((select max(rescuer_id) from rescuer), :1)`,
+        {1: phone}
+      );  
     })
     .then((result) => {
       res.send(result);
@@ -1200,6 +1193,7 @@ app.get("/rescuer_insert/:name/:phone", (req, res) => {
       res.send(error);
     });
 });
+
 
 //donations
 app.get("/customer_donation", (req, res) => {
@@ -1275,6 +1269,18 @@ app.get("/login_status", (req, res) => {
     .catch((error) => {
       res.send(error);
     });
+});
+
+app.get("/login_cust_id",(req,res)=>
+{
+  connection.get_data(`select CUSTOMER_ID
+  from LOGIN join CUSTOMER on LOGIN.EMAIL=CUSTOMER.EMAIL
+  where STATUS=1`).then(result=>{
+    res.send(result);
+  })
+  .catch(error=>{
+    res.send(error);
+  })
 });
 
 app.get("/login_insert/:email/:type/:status", (req, res) => {
@@ -1403,6 +1409,31 @@ app.get(
       });
   }
 );
+
+
+app.get("/search_staff/:name", (req, res) => {
+  connection
+    .get_data("select * from staff where name like '%" + req.query.name + "%'")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
+
+app.get("/search_customer/:name", (req, res) => {
+  connection
+    .get_data("select * from customer where name like '%" + req.query.name + "%'")
+    .then((result) => {
+      //console.log(result);
+      res.send(result);
+    })
+    .catch((error) => {
+      res.send(error);
+    });
+});
 
 
 app.listen(port);
