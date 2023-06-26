@@ -499,7 +499,7 @@ values (5,'01756201910');
 insert into rescuer_PHONE (rescuer_id, PHONE_NO)
 values (5,'01716130505');
 insert into rescuer_PHONE (rescuer_id, PHONE_NO)
-values (6,'01997894563');
+values (9,'01997894563');
 
 
 

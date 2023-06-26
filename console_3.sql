@@ -155,10 +155,17 @@ group by vet_id,name
 order by vet_id;
 
 --staff specialization
-create or replace view staff_specialization as
-select specialization "animal_type",staff_id, initcap(name) as "Name"
-from staff
-order by specialization;
+CREATE OR REPLACE VIEW STAFF_SPECIALIZATION AS
+    SELECT
+        SPECIALIZATION "animal_type",
+        LISTAGG('ID '||STAFF_ID||'->Name: '||NAME,
+        ', ')          AS SPECIALIZED_STAFF
+    FROM
+        STAFF
+    GROUP BY
+        SPECIALIZATION
+    ORDER BY
+        SPECIALIZATION;
 
 
 --feedback categorization
@@ -219,10 +226,9 @@ LEFT JOIN daycare_animals d ON r.vet_id = d.vet_id;
 
 --customer as well as Rescuer
 create or replace view cust_rescuer as
-SELECT c.customer_id, cph.phone_no, r.rescuer_id
-FROM customer c,customer_phone  cph
-, rescuer_phone  rph,
- rescuer r where cph.phone_no = rph.phone_no and c.name=r.name;
+SELECT c.customer_id, r.rescuer_id, cph.PHONE_NO, r.NAME
+FROM customer c,customer_phone  cph, rescuer_phone  rph, rescuer r
+where cph.phone_no = rph.phone_no and c.name=r.name;
 
 create or replace view donation_view as
     select DONATION_NO, name, amount, to_char(donation_date, 'dd-mm-yyyy') as "Date", customer_id
@@ -286,3 +292,7 @@ create or replace view all_gen_vet_v as
     from VETERINARIAN V JOIN vet_PHONE on V.vet_ID=vet_PHONE.vet_ID
     group by V.vet_ID, name, email, gender, V.address.house || ', ' || V.address.street || ', ' || V.address.city, to_char(dob, 'dd-mm-yyyy'), floor(months_between(sysdate, dob)/12), salary, qualification
 order by V.vet_id;
+
+create or replace view daycare_view as
+select DAYCARE_ANIMAL_ID, AGE, BREED, WEIGHT, RATE, TYPE, to_char(COMING_DATE, 'dd-mm-yyyy') "Coming Date", to_char(RELEASE_DATE,'dd-mm-yyyy') "Release Date", CABIN_NO, HEALTH_RECORD_ID, NAME, EMAIL
+from DAYCARE_ANIMAL natural join CUSTOMER;

@@ -4,7 +4,7 @@ select * from LOGIN order by SERIAL;
 select * from WORKS_AT;
 select * from RESCUER;
 select * from RESCUER_PHONE;
-select * from CABIN;
+select * from CABIN order by CABIN_NO;
 select * from HEALTH_RECORD;
 select * from DISEASES;
 select * from RESCUED_ANIMAL;
@@ -149,8 +149,6 @@ select * from CUST_RESCUER;
 select * from ALL_GEN_ADMIN_VIEW;
 select * from ALL_GEN_VET_V;
 select * from ALL_GEN_STAFF_VIEW;
-
-select  AMOUNT,"Donation Date" from CUSTOMER_DONATION where  EMAIL=(select EMAIL from LOGIN where Status=1);
 
 
 commit ;
